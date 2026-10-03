@@ -1,0 +1,4 @@
+eternal-events-bot
+├── bot.py
+├── requirements.txt
+└── .env

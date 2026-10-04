@@ -393,4 +393,79 @@ async def character(
     print("Character panel created successfully.")
 
 
+# =========================================================
+# /REMOVE
+# =========================================================
+
+@bot.tree.command(
+    name="remove",
+    description="Remove a player from an event or character application"
+)
+@discord.app_commands.describe(
+    type="Choose event or character",
+    player="The player you want to remove"
+)
+@discord.app_commands.choices(
+    type=[
+        discord.app_commands.Choice(
+            name="Event",
+            value="event"
+        ),
+        discord.app_commands.Choice(
+            name="Character",
+            value="character"
+        )
+    ]
+)
+async def remove(
+    interaction,
+    type: discord.app_commands.Choice[str],
+    player: discord.Member
+):
+    if interaction.user.id != OWNER_ID:
+        await interaction.response.send_message(
+            "❌ You do not have permission to use this command.",
+            ephemeral=True
+        )
+        return
+
+    player_id = player.id
+
+    if type.value == "event":
+        if player_id not in event_queue:
+            await interaction.response.send_message(
+                f"⚠️ {player.mention} is not currently in the event queue.",
+                ephemeral=True
+            )
+            return
+
+        event_queue.remove(player_id)
+
+        await interaction.response.send_message(
+            f"🚪 {player.mention} has been removed from the event queue.",
+            ephemeral=True
+        )
+
+        return
+
+    if type.value == "character":
+        if player_id not in character_applicants:
+            await interaction.response.send_message(
+                f"⚠️ {player.mention} is not currently applying for the character.",
+                ephemeral=True
+            )
+            return
+
+        character_applicants.pop(player_id)
+
+        await interaction.response.send_message(
+            f"🚪 {player.mention} has been removed from the character application.",
+            ephemeral=True
+        )
+
+        await update_character_panel()
+
+        return
+
+
 bot.run(TOKEN)

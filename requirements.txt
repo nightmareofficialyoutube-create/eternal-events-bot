@@ -1,4 +1,3 @@
-eternal-events-bot
-├── bot.py
-├── requirements.txt
-└── .env
+discord.py
+python-dotenv
+tzdata

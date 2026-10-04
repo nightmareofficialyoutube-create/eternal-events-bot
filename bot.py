@@ -244,6 +244,28 @@ class CharacterView(discord.ui.View):
 
 
 # =========================================================
+# ERROR HANDLER
+# =========================================================
+
+@bot.tree.error
+async def on_app_command_error(interaction, error):
+    print("========== CHARACTER/EVENT ERROR ==========")
+    print(repr(error))
+    print("===========================================")
+
+    if interaction.response.is_done():
+        await interaction.followup.send(
+            "❌ Something went wrong. Check the bot logs.",
+            ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            "❌ Something went wrong. Check the bot logs.",
+            ephemeral=True
+        )
+
+
+# =========================================================
 # BOT READY
 # =========================================================
 
@@ -255,7 +277,7 @@ async def on_ready():
         synced = await bot.tree.sync()
         print(f"Slash commands gesynchroniseerd: {len(synced)}")
     except Exception as error:
-        print(f"Sync error: {error}")
+        print(f"Sync error: {repr(error)}")
 
 
 # =========================================================
@@ -336,6 +358,10 @@ async def character(
     global character_minimum
     global character_panel_message
 
+    print("CHARACTER COMMAND RECEIVED")
+    print(f"User: {interaction.user}")
+    print(f"User ID: {interaction.user.id}")
+
     if interaction.user.id != OWNER_ID:
         await interaction.response.send_message(
             "You do not have permission to create character applications.",
@@ -355,12 +381,16 @@ async def character(
     character_role = role
     character_minimum = minimum_applicants
 
+    print("Creating character panel...")
+
     await interaction.response.send_message(
         get_character_message(),
         view=CharacterView()
     )
 
     character_panel_message = await interaction.original_response()
+
+    print("Character panel created successfully.")
 
 
 bot.run(TOKEN)
